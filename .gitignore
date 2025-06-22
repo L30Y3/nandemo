@@ -1,0 +1,11 @@
+# Go
+/bin/
+/pkg/
+/vendor/
+
+# Node.js frontend
+/node_modules/
+
+# OS files
+.DS_Store
+.env

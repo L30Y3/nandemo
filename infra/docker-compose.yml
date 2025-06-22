@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  gateway-service:
+    build: ../gateway-service
+    ports:
+      - "8080:8080"
+    depends_on:
+      - redis
+
+  order-service:
+    build: ../order-service
+    depends_on:
+      - redis
+
+  merchant-service:
+    build: ../merchant-service
+    depends_on:
+      - redis
+
