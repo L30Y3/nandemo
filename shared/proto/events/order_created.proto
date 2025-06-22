@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package events;
+
+option go_package = "github.com/L30Y3/nandemo/shared/proto/events;events";
+
+message Order {
+  string id = 1;
+  string user_id = 2;
+  string merchant_id = 3;
+  repeated string items = 4;
+  string status = 5;
+}
+
+message OrderCreatedEvent {
+  string event_id = 1;
+  Order order = 2;
+}
