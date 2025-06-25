@@ -4,7 +4,7 @@
 // 	protoc        v5.29.3
 // source: protoevents/order_created.proto
 
-package events
+package protoevents
 
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
@@ -153,17 +153,17 @@ var File_protoevents_order_created_proto protoreflect.FileDescriptor
 
 const file_protoevents_order_created_proto_rawDesc = "" +
 	"\n" +
-	"\x1fprotoevents/order_created.proto\x12\x06events\"\x7f\n" +
+	"\x1fprotoevents/order_created.proto\x12\vprotoevents\"\x7f\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
 	"\vmerchant_id\x18\x03 \x01(\tR\n" +
 	"merchantId\x12\x14\n" +
 	"\x05items\x18\x04 \x03(\tR\x05items\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\"S\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\"X\n" +
 	"\x11OrderCreatedEvent\x12\x19\n" +
-	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12#\n" +
-	"\x05order\x18\x02 \x01(\v2\r.events.OrderR\x05orderB5Z3github.com/L30Y3/nandemo/shared/proto/events;eventsb\x06proto3"
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12(\n" +
+	"\x05order\x18\x02 \x01(\v2\x12.protoevents.OrderR\x05orderB?Z=github.com/L30Y3/nandemo/shared/proto/protoevents;protoeventsb\x06proto3"
 
 var (
 	file_protoevents_order_created_proto_rawDescOnce sync.Once
@@ -179,11 +179,11 @@ func file_protoevents_order_created_proto_rawDescGZIP() []byte {
 
 var file_protoevents_order_created_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_protoevents_order_created_proto_goTypes = []any{
-	(*Order)(nil),             // 0: events.Order
-	(*OrderCreatedEvent)(nil), // 1: events.OrderCreatedEvent
+	(*Order)(nil),             // 0: protoevents.Order
+	(*OrderCreatedEvent)(nil), // 1: protoevents.OrderCreatedEvent
 }
 var file_protoevents_order_created_proto_depIdxs = []int32{
-	0, // 0: events.OrderCreatedEvent.order:type_name -> events.Order
+	0, // 0: protoevents.OrderCreatedEvent.order:type_name -> protoevents.Order
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
