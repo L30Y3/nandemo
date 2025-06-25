@@ -6,11 +6,14 @@ import (
 	"os"
 
 	"github.com/L30Y3/nandemo/order-service/internal/api"
+	"github.com/L30Y3/nandemo/shared/events"
 )
 
 func main() {
 	mux := http.NewServeMux()
-	api.RegisterRoutes(mux)
+
+	bus := events.NewInMemoryBus()
+	api.RegisterRoutes(mux, bus)
 
 	port := os.Getenv("PORT")
 	if port == "" {

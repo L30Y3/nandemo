@@ -5,10 +5,15 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/L30Y3/nandemo/shared/events"
 	"github.com/L30Y3/nandemo/shared/models"
+	pb "github.com/L30Y3/nandemo/shared/proto/protoevents"
 )
 
-func RegisterRoutes(mux *http.ServeMux) {
+var eventBus events.EventBus
+
+func RegisterRoutes(mux *http.ServeMux, bus events.EventBus) {
+	eventBus = bus
 	mux.HandleFunc("/health", HealthHandler)
 	mux.HandleFunc("/order", CreateOrderHandler)
 }
@@ -33,6 +38,24 @@ func CreateOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 	// For now: log order, simulate successful processing
 	fmt.Printf("Received new order: %+v\n", order)
+
+	// create Protobuf OrderCreatedEvent from incoming order model
+	event := &pb.OrderCreatedEvent{
+		EventId: "evt-" + order.ID,
+		Order: &pb.Order{
+			Id:         order.ID,
+			UserId:     order.UserID,
+			MerchantId: order.MerchantID,
+			Items:      order.Items,
+			Status:     order.Status,
+		},
+	}
+
+	if err := eventBus.PublishOrderCreated(event); err != nil {
+		fmt.Printf("Failed to publish eevnt: %v\n", err)
+		http.Error(w, "Failed to publish event", http.StatusInternalServerError)
+		return
+	}
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(order)
