@@ -1,7 +1,10 @@
 package events
 
-import events "github.com/L30Y3/nandemo/shared/proto/protoevents"
+import pb "github.com/L30Y3/nandemo/shared/proto/protoevents"
+
+type OrderCreatedEventHandler func(event *pb.OrderCreatedEvent)
 
 type EventBus interface {
-	PublishOrderCreated(event *events.OrderCreatedEvent) error
+	PublishOrderCreated(event *pb.OrderCreatedEvent) error
+	SubscribeToOrderCreated(handler OrderCreatedEventHandler)
 }
