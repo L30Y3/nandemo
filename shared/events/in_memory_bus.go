@@ -12,7 +12,7 @@ type InMemoryBus struct {
 
 func NewInMemoryBus() *InMemoryBus {
 	return &InMemoryBus{
-		orderCreatedSubscribers: []OrderCreatedEventHandler,
+		orderCreatedSubscribers: []OrderCreatedEventHandler{},
 	}
 }
 
