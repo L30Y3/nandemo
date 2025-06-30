@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"net/http"
+	"os"
 
 	"github.com/L30Y3/nandemo/merchant-service/internal/consumer"
 	"github.com/L30Y3/nandemo/shared/events"
@@ -9,12 +11,18 @@ import (
 
 func main() {
 	bus := events.NewInMemoryBus()
+	consumer.ListenForOrders(bus)
 
-	// Simulate event subscription (in-memory)
-	go consumer.ListenForOrders(bus)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Merchant Service OK"))
+	})
 
-	log.Println("Merchant Service running...")
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8082"
+	}
 
-	// Block forever
-	select {}
+	log.Printf("Merchant Service running on port %s...", port)
+	log.Fatal(http.ListenAndServe(":"+port, mux))
 }
