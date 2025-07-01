@@ -46,7 +46,7 @@ func CreateOrderHandler(w http.ResponseWriter, r *http.Request) {
 			Id:         order.ID,
 			UserId:     order.UserID,
 			MerchantId: order.MerchantID,
-			Items:      order.Items,
+			Items:      convertOrderItems(order.Items),
 			Status:     order.Status,
 		},
 	}
@@ -59,4 +59,16 @@ func CreateOrderHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(order)
+}
+
+func convertOrderItems(modelItems []models.OrderItem) []*pb.OrderItem {
+	items := make([]*pb.OrderItem, len(modelItems))
+	for i, item := range modelItems {
+		items[i] = &pb.OrderItem{
+			Sku:   item.SKU,
+			Qty:   item.Qty,
+			Price: item.Price,
+		}
+	}
+	return items
 }

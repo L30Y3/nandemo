@@ -4,12 +4,21 @@ package protoevents;
 
 option go_package = "github.com/L30Y3/nandemo/shared/proto/protoevents;protoevents";
 
+message OrderItem {
+  string sku = 1;
+  int32 qty = 2;
+  double price = 3;
+}
+
 message Order {
   string id = 1;
   string user_id = 2;
   string merchant_id = 3;
-  repeated string items = 4;
+  repeated OrderItem items = 4;
   string status = 5;
+  double total_amount = 6;
+  string created_at = 7;
+  string source = 8;
 }
 
 message OrderCreatedEvent {

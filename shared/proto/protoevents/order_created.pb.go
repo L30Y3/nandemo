@@ -21,20 +21,83 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type OrderItem struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Sku           string                 `protobuf:"bytes,1,opt,name=sku,proto3" json:"sku,omitempty"`
+	Qty           int32                  `protobuf:"varint,2,opt,name=qty,proto3" json:"qty,omitempty"`
+	Price         float64                `protobuf:"fixed64,3,opt,name=price,proto3" json:"price,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *OrderItem) Reset() {
+	*x = OrderItem{}
+	mi := &file_protoevents_order_created_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *OrderItem) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OrderItem) ProtoMessage() {}
+
+func (x *OrderItem) ProtoReflect() protoreflect.Message {
+	mi := &file_protoevents_order_created_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OrderItem.ProtoReflect.Descriptor instead.
+func (*OrderItem) Descriptor() ([]byte, []int) {
+	return file_protoevents_order_created_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *OrderItem) GetSku() string {
+	if x != nil {
+		return x.Sku
+	}
+	return ""
+}
+
+func (x *OrderItem) GetQty() int32 {
+	if x != nil {
+		return x.Qty
+	}
+	return 0
+}
+
+func (x *OrderItem) GetPrice() float64 {
+	if x != nil {
+		return x.Price
+	}
+	return 0
+}
+
 type Order struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId        string                 `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	MerchantId    string                 `protobuf:"bytes,3,opt,name=merchant_id,json=merchantId,proto3" json:"merchant_id,omitempty"`
-	Items         []string               `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`
+	Items         []*OrderItem           `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty"`
 	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"`
+	TotalAmount   float64                `protobuf:"fixed64,6,opt,name=total_amount,json=totalAmount,proto3" json:"total_amount,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Source        string                 `protobuf:"bytes,8,opt,name=source,proto3" json:"source,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Order) Reset() {
 	*x = Order{}
-	mi := &file_protoevents_order_created_proto_msgTypes[0]
+	mi := &file_protoevents_order_created_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -46,7 +109,7 @@ func (x *Order) String() string {
 func (*Order) ProtoMessage() {}
 
 func (x *Order) ProtoReflect() protoreflect.Message {
-	mi := &file_protoevents_order_created_proto_msgTypes[0]
+	mi := &file_protoevents_order_created_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -59,7 +122,7 @@ func (x *Order) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Order.ProtoReflect.Descriptor instead.
 func (*Order) Descriptor() ([]byte, []int) {
-	return file_protoevents_order_created_proto_rawDescGZIP(), []int{0}
+	return file_protoevents_order_created_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *Order) GetId() string {
@@ -83,7 +146,7 @@ func (x *Order) GetMerchantId() string {
 	return ""
 }
 
-func (x *Order) GetItems() []string {
+func (x *Order) GetItems() []*OrderItem {
 	if x != nil {
 		return x.Items
 	}
@@ -93,6 +156,27 @@ func (x *Order) GetItems() []string {
 func (x *Order) GetStatus() string {
 	if x != nil {
 		return x.Status
+	}
+	return ""
+}
+
+func (x *Order) GetTotalAmount() float64 {
+	if x != nil {
+		return x.TotalAmount
+	}
+	return 0
+}
+
+func (x *Order) GetCreatedAt() string {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return ""
+}
+
+func (x *Order) GetSource() string {
+	if x != nil {
+		return x.Source
 	}
 	return ""
 }
@@ -107,7 +191,7 @@ type OrderCreatedEvent struct {
 
 func (x *OrderCreatedEvent) Reset() {
 	*x = OrderCreatedEvent{}
-	mi := &file_protoevents_order_created_proto_msgTypes[1]
+	mi := &file_protoevents_order_created_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -119,7 +203,7 @@ func (x *OrderCreatedEvent) String() string {
 func (*OrderCreatedEvent) ProtoMessage() {}
 
 func (x *OrderCreatedEvent) ProtoReflect() protoreflect.Message {
-	mi := &file_protoevents_order_created_proto_msgTypes[1]
+	mi := &file_protoevents_order_created_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -132,7 +216,7 @@ func (x *OrderCreatedEvent) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use OrderCreatedEvent.ProtoReflect.Descriptor instead.
 func (*OrderCreatedEvent) Descriptor() ([]byte, []int) {
-	return file_protoevents_order_created_proto_rawDescGZIP(), []int{1}
+	return file_protoevents_order_created_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *OrderCreatedEvent) GetEventId() string {
@@ -153,14 +237,22 @@ var File_protoevents_order_created_proto protoreflect.FileDescriptor
 
 const file_protoevents_order_created_proto_rawDesc = "" +
 	"\n" +
-	"\x1fprotoevents/order_created.proto\x12\vprotoevents\"\x7f\n" +
+	"\x1fprotoevents/order_created.proto\x12\vprotoevents\"E\n" +
+	"\tOrderItem\x12\x10\n" +
+	"\x03sku\x18\x01 \x01(\tR\x03sku\x12\x10\n" +
+	"\x03qty\x18\x02 \x01(\x05R\x03qty\x12\x14\n" +
+	"\x05price\x18\x03 \x01(\x01R\x05price\"\xf1\x01\n" +
 	"\x05Order\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x17\n" +
 	"\auser_id\x18\x02 \x01(\tR\x06userId\x12\x1f\n" +
 	"\vmerchant_id\x18\x03 \x01(\tR\n" +
-	"merchantId\x12\x14\n" +
-	"\x05items\x18\x04 \x03(\tR\x05items\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\"X\n" +
+	"merchantId\x12,\n" +
+	"\x05items\x18\x04 \x03(\v2\x16.protoevents.OrderItemR\x05items\x12\x16\n" +
+	"\x06status\x18\x05 \x01(\tR\x06status\x12!\n" +
+	"\ftotal_amount\x18\x06 \x01(\x01R\vtotalAmount\x12\x1d\n" +
+	"\n" +
+	"created_at\x18\a \x01(\tR\tcreatedAt\x12\x16\n" +
+	"\x06source\x18\b \x01(\tR\x06source\"X\n" +
 	"\x11OrderCreatedEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12(\n" +
 	"\x05order\x18\x02 \x01(\v2\x12.protoevents.OrderR\x05orderB?Z=github.com/L30Y3/nandemo/shared/proto/protoevents;protoeventsb\x06proto3"
@@ -177,18 +269,20 @@ func file_protoevents_order_created_proto_rawDescGZIP() []byte {
 	return file_protoevents_order_created_proto_rawDescData
 }
 
-var file_protoevents_order_created_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_protoevents_order_created_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_protoevents_order_created_proto_goTypes = []any{
-	(*Order)(nil),             // 0: protoevents.Order
-	(*OrderCreatedEvent)(nil), // 1: protoevents.OrderCreatedEvent
+	(*OrderItem)(nil),         // 0: protoevents.OrderItem
+	(*Order)(nil),             // 1: protoevents.Order
+	(*OrderCreatedEvent)(nil), // 2: protoevents.OrderCreatedEvent
 }
 var file_protoevents_order_created_proto_depIdxs = []int32{
-	0, // 0: protoevents.OrderCreatedEvent.order:type_name -> protoevents.Order
-	1, // [1:1] is the sub-list for method output_type
-	1, // [1:1] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	0, // 0: protoevents.Order.items:type_name -> protoevents.OrderItem
+	1, // 1: protoevents.OrderCreatedEvent.order:type_name -> protoevents.Order
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_protoevents_order_created_proto_init() }
@@ -202,7 +296,7 @@ func file_protoevents_order_created_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protoevents_order_created_proto_rawDesc), len(file_protoevents_order_created_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

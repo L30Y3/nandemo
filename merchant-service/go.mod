@@ -4,7 +4,10 @@ go 1.24.4
 
 replace github.com/L30Y3/nandemo/shared => ../shared
 
-require github.com/L30Y3/nandemo/shared v0.0.0-20250625142309-aa8859238e53
+require (
+	cloud.google.com/go/firestore v1.18.0
+	github.com/L30Y3/nandemo/shared v0.0.0-20250625142309-aa8859238e53
+)
 
 require (
 	cloud.google.com/go v0.120.0 // indirect
@@ -12,6 +15,7 @@ require (
 	cloud.google.com/go/auth/oauth2adapt v0.2.7 // indirect
 	cloud.google.com/go/compute/metadata v0.6.0 // indirect
 	cloud.google.com/go/iam v1.4.2 // indirect
+	cloud.google.com/go/longrunning v0.6.5 // indirect
 	cloud.google.com/go/pubsub v1.49.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect

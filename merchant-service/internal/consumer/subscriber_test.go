@@ -17,6 +17,11 @@ func TestOrderEventDeliveryToMerchant(t *testing.T) {
 		received <- event
 	})
 
+	orderItems := []*pb.OrderItem{
+		{Sku: "food001", Price: 42, Qty: 1},
+		{Sku: "drink001", Price: 2.5, Qty: 4},
+	}
+
 	// simulate publisher (like order service)
 	testEvent := &pb.OrderCreatedEvent{
 		EventId: "order-123",
@@ -24,7 +29,7 @@ func TestOrderEventDeliveryToMerchant(t *testing.T) {
 			Id:         "order-123",
 			UserId:     "user-abc",
 			MerchantId: "merchant-xyz",
-			Items:      []string{"Bobba tea", "Egg Waffle"},
+			Items:      orderItems,
 			Status:     "created",
 		},
 	}
@@ -41,7 +46,7 @@ func TestOrderEventDeliveryToMerchant(t *testing.T) {
 	if receivedEvent.Order.Status != "created" {
 		t.Errorf("Expected status 'created', got '%s'", receivedEvent.Order.Status)
 	}
-	if len(receivedEvent.Order.Items) != 2 || receivedEvent.Order.Items[1] != "Egg Waffle" {
+	if len(receivedEvent.Order.Items) != 2 || receivedEvent.Order.Items[1].Sku != "drink001" {
 		t.Errorf("Unexpected items: %v", receivedEvent.Order.Items)
 	}
 }
