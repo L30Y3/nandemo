@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	"flag"
 	"log"
 	"net/http"
 	"os"
@@ -9,8 +11,33 @@ import (
 	"github.com/L30Y3/nandemo/shared/events"
 )
 
+const (
+	defaultProjectID      = "nandemo-464411"
+	defaultTopicID        = "order-created"
+	defaultSubscriptionID = "merchant-order-receiver"
+)
+
 func main() {
-	bus := events.NewInMemoryBus()
+	// Define command line args, run like below or run without args to use defaults, add to README
+	// 	go run main.go \
+	//   -project=my-alt-project \
+	//   -topic=my-alt-topic \
+	//   -subscription=my-alt-sub
+
+	projectID := flag.String("project", defaultProjectID, "GCP project ID")
+	topicID := flag.String("topic", defaultTopicID, "Pub/Sub topic ID")
+	subID := flag.String("subscription", defaultSubscriptionID, "Pub/Sub subscription ID")
+
+	flag.Parse()
+
+	ctx := context.Background()
+	bus, err := events.NewPubSubBus(ctx, *projectID, *topicID, *subID)
+	if err != nil {
+		log.Fatalf("Failed to create PubSubBus: %v", err)
+	}
+
+	defer bus.Stop()
+
 	consumer.ListenForOrders(bus)
 
 	mux := http.NewServeMux()
