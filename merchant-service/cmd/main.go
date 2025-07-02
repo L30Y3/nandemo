@@ -31,7 +31,7 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	bus, err := events.NewPubSubBus(ctx, *projectID, *topicID, *subID)
+	bus, err := events.NewPubSubSubscriber(ctx, *projectID, *topicID, *subID)
 	if err != nil {
 		log.Fatalf("Failed to create PubSubBus: %v", err)
 	}

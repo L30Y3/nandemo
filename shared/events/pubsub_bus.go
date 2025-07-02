@@ -21,7 +21,22 @@ type PubSubBus struct {
 	mu            sync.Mutex
 }
 
-func NewPubSubBus(ctx context.Context, projectId, topicId, subId string) (*PubSubBus, error) {
+func NewPubSubPublisher(ctx context.Context, projectId, topicId string) (*PubSubBus, error) {
+	client, err := pubsub.NewClient(ctx, projectId)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to create pubsub client: %w", err)
+	}
+
+	topic := client.Topic(topicId)
+
+	return &PubSubBus{
+		client: client,
+		topic:  topic,
+		ctx:    ctx,
+	}, nil
+}
+
+func NewPubSubSubscriber(ctx context.Context, projectId, topicId, subId string) (*PubSubBus, error) {
 	client, err := pubsub.NewClient(ctx, projectId)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create pubsub client: %w", err)

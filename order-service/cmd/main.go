@@ -21,7 +21,7 @@ func main() {
 	ctx := context.Background()
 
 	// this is a publishing only service, don't need a real subscription ID
-	bus, err := events.NewPubSubBus(ctx, defaultProjectID, defaultTopicID, "not-used-in-publisher-mode")
+	bus, err := events.NewPubSubPublisher(ctx, defaultProjectID, defaultTopicID)
 	if err != nil {
 		log.Fatalf("Failed to create PubSubBus: %v", err)
 	}
