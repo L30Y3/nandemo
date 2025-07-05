@@ -1,4 +1,4 @@
-package client
+package orderclient
 
 import (
 	"bytes"
@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/L30Y3/nandemo/shared/config"
 	"github.com/L30Y3/nandemo/shared/models"
 )
 
@@ -15,9 +16,9 @@ type OrderServiceClient struct {
 	HTTPClient *http.Client
 }
 
-func NewOrderServiceClient(baseURL string) *OrderServiceClient {
+func NewOrderServiceClient() *OrderServiceClient {
 	return &OrderServiceClient{
-		BaseURL:    baseURL,
+		BaseURL:    getBaseURL(),
 		HTTPClient: http.DefaultClient,
 	}
 }
@@ -49,4 +50,8 @@ func (c *OrderServiceClient) CreateOrder(ctx context.Context, order *models.Orde
 	}
 
 	return nil
+}
+
+func getBaseURL() string {
+	return fmt.Sprintf("http://localhost:%s", config.OrderServicePort)
 }

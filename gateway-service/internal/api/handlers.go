@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/L30Y3/nandemo/gateway-service/internal/oauth"
+	orderclient "github.com/L30Y3/nandemo/shared/clients/orderclient"
 )
 
 const (
@@ -21,6 +22,8 @@ const (
 type HealthResponse struct {
 	Status string `json:"status"`
 }
+
+var orderSvc = orderclient.NewOrderServiceClient()
 
 func RegisterRoutes(r chi.Router) {
 	r.Get(healthRoute, HealthHandler)

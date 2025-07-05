@@ -7,14 +7,9 @@ import (
 	"net/http"
 	"os"
 
+	cfg "github.com/L30Y3/nandemo/merchant-service/internal/config"
 	"github.com/L30Y3/nandemo/merchant-service/internal/consumer"
 	"github.com/L30Y3/nandemo/shared/events"
-)
-
-const (
-	defaultProjectID      = "nandemo-464411"
-	defaultTopicID        = "order-created"
-	defaultSubscriptionID = "merchant-order-receiver"
 )
 
 func main() {
@@ -24,9 +19,9 @@ func main() {
 	//   -topic=my-alt-topic \
 	//   -subscription=my-alt-sub
 
-	projectID := flag.String("project", defaultProjectID, "GCP project ID")
-	topicID := flag.String("topic", defaultTopicID, "Pub/Sub topic ID")
-	subID := flag.String("subscription", defaultSubscriptionID, "Pub/Sub subscription ID")
+	projectID := flag.String("project", cfg.DefaultProjectID, "GCP project ID")
+	topicID := flag.String("topic", cfg.DefaultTopicID, "Pub/Sub topic ID")
+	subID := flag.String("subscription", cfg.DefaultSubID, "Pub/Sub subscription ID")
 
 	flag.Parse()
 
@@ -47,7 +42,7 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8082"
+		port = cfg.MerchantServicePort
 	}
 
 	log.Printf("Merchant Service running on port %s...", port)
