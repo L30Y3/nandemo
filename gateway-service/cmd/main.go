@@ -6,11 +6,12 @@ import (
 	"os"
 
 	"github.com/L30Y3/nandemo/gateway-service/internal/api"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
-	mux := http.NewServeMux()
-	api.RegisterRoutes(mux)
+	r := chi.NewRouter()
+	api.RegisterRoutes(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -18,5 +19,5 @@ func main() {
 	}
 
 	log.Printf("Starting Gateway Service on port %s...", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }
