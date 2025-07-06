@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"cloud.google.com/go/firestore"
@@ -97,12 +98,19 @@ func GetGoodsByMerchant(ctx context.Context, fs *firestore.Client, merchantId st
 
 	for i, g := range goodsSlice {
 		gMap := g.(map[string]interface{})
+		log.Printf("Got good: %+v", gMap)
 		var price float64
 		switch v := gMap["price"].(type) {
 		case int64:
 			price = float64(v)
 		case float64:
 			price = v
+		case string:
+			parsed, err := strconv.ParseFloat(v, 64)
+			if err != nil {
+				return nil, fmt.Errorf("invalid string price: %v", v)
+			}
+			price = parsed
 		default:
 			return nil, fmt.Errorf("unexpected type for price: %T", v)
 		}

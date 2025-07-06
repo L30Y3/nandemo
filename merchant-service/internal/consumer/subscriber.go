@@ -17,6 +17,7 @@ func ListenForOrders(bus events.EventBus, client *firestore.Client) {
 		log.Printf("Gambarimasu!! Handling OrderCreatedEvent: %+v", event)
 
 		doc := map[string]interface{}{
+			"id":          event.Order.Id,
 			"orderId":     event.Order.Id,
 			"userId":      event.Order.UserId,
 			"merchantId":  event.Order.MerchantId, // currently there is only one merchant

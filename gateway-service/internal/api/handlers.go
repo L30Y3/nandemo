@@ -7,6 +7,7 @@ import (
 	"github.com/go-chi/chi/v5"
 
 	"github.com/L30Y3/nandemo/gateway-service/internal/oauth"
+	merchantclient "github.com/L30Y3/nandemo/shared/clients/merchantclient"
 	orderclient "github.com/L30Y3/nandemo/shared/clients/orderclient"
 	"github.com/L30Y3/nandemo/shared/models"
 )
@@ -25,6 +26,7 @@ type HealthResponse struct {
 }
 
 var orderSvc = orderclient.NewOrderServiceClient()
+var merchantSvc = merchantclient.NewMerchantServiceClient()
 
 func RegisterRoutes(r chi.Router) {
 	r.Get(healthRoute, HealthHandler)
@@ -59,11 +61,30 @@ func HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {
-	// TODO: forward to merchant-service
-	w.Write([]byte("Merchant orders (stub)"))
+	merchantId := chi.URLParam(r, "merchantId")
+	window := r.URL.Query().Get("window")
+
+	if window == "" {
+		window = "12h"
+	}
+
+	orders, err := merchantSvc.GetMerchantOrdersWithWindow(r.Context(), merchantId, window)
+	if err != nil {
+		http.Error(w, "Failed to fetch orders", http.StatusBadGateway)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(orders)
 }
 
 func HandleGetMerchantGoods(w http.ResponseWriter, r *http.Request) {
-	// TODO: forward to merchant-service
-	w.Write([]byte("Merchant goods (stub)"))
+	merchantId := chi.URLParam(r, "merchantId")
+
+	goods, err := merchantSvc.GetMerchantGoods(r.Context(), merchantId)
+	if err != nil {
+		http.Error(w, "Failed to fetch goods", http.StatusBadGateway)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(goods)
 }
