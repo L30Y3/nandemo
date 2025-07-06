@@ -7,6 +7,7 @@ import (
 	"cloud.google.com/go/firestore"
 	"github.com/L30Y3/nandemo/shared/events"
 	pb "github.com/L30Y3/nandemo/shared/proto/protoevents"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func ListenForOrders(bus events.EventBus, client *firestore.Client) {
@@ -22,7 +23,7 @@ func ListenForOrders(bus events.EventBus, client *firestore.Client) {
 			"items":       flattenOrderItems(event.Order.Items),
 			"status":      event.Order.Status,
 			"totalAmount": event.Order.TotalAmount,
-			"createdAt":   event.Order.CreatedAt,
+			"createdAt":   timestamppb.Now().AsTime(), // have not been clearly defined inside orders model, use processing time
 			"source":      event.Order.Source,
 			"eventId":     event.EventId,
 		}

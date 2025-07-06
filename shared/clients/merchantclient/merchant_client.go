@@ -52,3 +52,29 @@ func (c *MerchantServiceClient) GetMerchantGoods(ctx context.Context, merchantId
 
 	return goods, nil
 }
+
+func (c *MerchantServiceClient) GetMerchantOrdersWithWindow(ctx context.Context, merchantId, window string) ([]models.Order, error) {
+	url := fmt.Sprintf("%s/merchant/%s/orders?window=%s", c.BaseURL, merchantId, window)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to build request: %w", err)
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("merchant service returned status: %s", resp.Status)
+	}
+
+	var orders []models.Order
+	if err := json.NewDecoder(resp.Body).Decode(&orders); err != nil {
+		return nil, fmt.Errorf("failed to decode orders: %w", err)
+	}
+
+	return orders, nil
+}

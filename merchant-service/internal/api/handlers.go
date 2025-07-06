@@ -3,11 +3,14 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
 	"cloud.google.com/go/firestore"
 	"github.com/L30Y3/nandemo/shared/models"
 	"github.com/go-chi/chi/v5"
+	"google.golang.org/api/iterator"
 )
 
 const (
@@ -24,6 +27,7 @@ func RegisterRoutes(r chi.Router, h *MerchantHandlerWithFirestoreClient) {
 		w.Write([]byte("Merchant Service OK"))
 	})
 	r.Get(getGoodiesRoute, h.GetMerchantGoodsHandler)
+	r.Get(getOrdersRoute, h.GetMerchantOrdersHandler)
 }
 
 func (h *MerchantHandlerWithFirestoreClient) GetMerchantGoodsHandler(w http.ResponseWriter, r *http.Request) {
@@ -37,6 +41,38 @@ func (h *MerchantHandlerWithFirestoreClient) GetMerchantGoodsHandler(w http.Resp
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(goods)
+}
+
+func (h *MerchantHandlerWithFirestoreClient) GetMerchantOrdersHandler(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Get merchantId from the URL
+	merchantID := chi.URLParam(r, "merchantId")
+
+	// Get the `window` query param (e.g., "12h")
+	windowParam := r.URL.Query().Get("window")
+	if windowParam == "" {
+		windowParam = "12h" // default
+	}
+
+	windowDuration, err := time.ParseDuration(windowParam)
+	if err != nil {
+		http.Error(w, "Invalid window format", http.StatusBadRequest)
+		return
+	}
+
+	cutoff := time.Now().Add(-windowDuration)
+
+	// Fetch from Firestore
+	orders, err := GetOrdersSince(ctx, merchantID, cutoff, h.Firestore)
+	if err != nil {
+		http.Error(w, "Failed to fetch orders", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond with JSON
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(orders)
 }
 
 func GetGoodsByMerchant(ctx context.Context, fs *firestore.Client, merchantId string) ([]models.Goods, error) {
@@ -70,4 +106,35 @@ func GetGoodsByMerchant(ctx context.Context, fs *firestore.Client, merchantId st
 	}
 
 	return goodsList, nil
+}
+
+func GetOrdersSince(ctx context.Context, merchantID string, cutoff time.Time, fs *firestore.Client) ([]models.Order, error) {
+	iter := fs.Collection("orders").
+		Where("merchantId", "==", merchantID).
+		Where("createdAt", ">", cutoff).
+		Documents(ctx)
+
+	defer iter.Stop()
+
+	var orders []models.Order
+
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			return nil, fmt.Errorf("firestore iteration error: %w", err)
+		}
+
+		var order models.Order
+		if err := doc.DataTo(&order); err != nil {
+			return nil, fmt.Errorf("firestore decode error: %w", err)
+		}
+
+		orders = append(orders, order)
+	}
+
+	return orders, nil
 }
