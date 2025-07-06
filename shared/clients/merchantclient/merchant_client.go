@@ -1,0 +1,54 @@
+package merchantclient
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
+
+	"github.com/L30Y3/nandemo/shared/config"
+	"github.com/L30Y3/nandemo/shared/models"
+)
+
+type MerchantServiceClient struct {
+	BaseURL    string
+	HTTPClient *http.Client
+}
+
+func getBaseURL() string {
+	return fmt.Sprintf("http://localhost:%s", config.MerchantServicePort)
+}
+
+func NewMerchantServiceClient() *MerchantServiceClient {
+	return &MerchantServiceClient{
+		BaseURL:    getBaseURL(),
+		HTTPClient: http.DefaultClient,
+	}
+}
+
+func (c *MerchantServiceClient) GetMerchantGoods(ctx context.Context, merchantId string) ([]models.Goods, error) {
+	prefix := "[merchant client]:"
+	url := fmt.Sprintf("%s/merchant/%s/goods", c.BaseURL, merchantId)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("%s failed to build request: %w", prefix, err)
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("%s HTTP request failed: %w", prefix, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("%s merchant service returned status: %s", prefix, resp.Status)
+	}
+
+	var goods []models.Goods
+	if err := json.NewDecoder(req.Body).Decode(&goods); err != nil {
+		return nil, fmt.Errorf("%s failed to decode goods response: %w", prefix, err)
+	}
+
+	return goods, nil
+}

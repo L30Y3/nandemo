@@ -9,24 +9,8 @@ import (
 	pb "github.com/L30Y3/nandemo/shared/proto/protoevents"
 )
 
-const (
-	defaultProjectId = "nandemo-464411"
-)
-
-var firestoreClient *firestore.Client
-
-func initFirestore(ctx context.Context, projectId string) {
-	var err error
-	firestoreClient, err = firestore.NewClient(ctx, projectId)
-	if err != nil {
-		log.Fatalf("Yabai! Failed to initialise Firestore client: %v", err)
-	}
-}
-
-// ListenForOrders simulates merchant listening for new orders
-func ListenForOrders(bus events.EventBus) {
+func ListenForOrders(bus events.EventBus, client *firestore.Client) {
 	ctx := context.Background()
-	initFirestore(ctx, defaultProjectId)
 
 	bus.SubscribeToOrderCreated(func(event *pb.OrderCreatedEvent) {
 		log.Printf("Gambarimasu!! Handling OrderCreatedEvent: %+v", event)
@@ -43,7 +27,7 @@ func ListenForOrders(bus events.EventBus) {
 			"eventId":     event.EventId,
 		}
 
-		_, err := firestoreClient.Collection("orders").Doc(event.Order.Id).Set(ctx, doc)
+		_, err := client.Collection("orders").Doc(event.Order.Id).Set(ctx, doc)
 
 		if err != nil {
 			log.Printf("Yabai!! Failed to write order to Firestore: %v", err)

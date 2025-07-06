@@ -8,6 +8,7 @@ import (
 
 	"github.com/L30Y3/nandemo/gateway-service/internal/oauth"
 	orderclient "github.com/L30Y3/nandemo/shared/clients/orderclient"
+	"github.com/L30Y3/nandemo/shared/models"
 )
 
 const (
@@ -41,8 +42,20 @@ func HealthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
-	// TODO: forward to order-service
-	w.Write([]byte("Order created (stub)"))
+	var order models.Order
+
+	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := orderSvc.CreateOrder(r.Context(), &order); err != nil {
+		http.Error(w, "Failed to forward order", http.StatusBadGateway)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(order)
 }
 
 func HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {

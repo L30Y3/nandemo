@@ -7,9 +7,12 @@ import (
 	"net/http"
 	"os"
 
-	cfg "github.com/L30Y3/nandemo/merchant-service/internal/config"
+	"cloud.google.com/go/firestore"
+	"github.com/L30Y3/nandemo/merchant-service/internal/api"
 	"github.com/L30Y3/nandemo/merchant-service/internal/consumer"
+	cfg "github.com/L30Y3/nandemo/shared/config"
 	"github.com/L30Y3/nandemo/shared/events"
+	"github.com/go-chi/chi/v5"
 )
 
 func main() {
@@ -33,11 +36,18 @@ func main() {
 
 	defer bus.Stop()
 
-	consumer.ListenForOrders(bus)
+	client, err := firestore.NewClient(ctx, cfg.DefaultProjectID)
+	if err != nil {
+		log.Fatalf("Failed to init Firestore client: %v", err)
+	}
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Merchant Service OK"))
+	defer client.Close()
+
+	consumer.ListenForOrders(bus, client)
+
+	r := chi.NewRouter()
+	api.RegisterRoutes(r, &api.MerchantHandlerWithFirestoreClient{
+		Firestore: client,
 	})
 
 	port := os.Getenv("PORT")
@@ -46,5 +56,5 @@ func main() {
 	}
 
 	log.Printf("Merchant Service running on port %s...", port)
-	log.Fatal(http.ListenAndServe(":"+port, mux))
+	log.Fatal(http.ListenAndServe(":"+port, r))
 }

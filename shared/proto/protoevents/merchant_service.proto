@@ -1,0 +1,21 @@
+syntax = "proto3";
+package protoevents;
+
+option go_package = "github.com/L30Y3/nandemo/shared/proto/protoevents;protoevents";
+
+message MerchantGoodsRequest {
+  string merchant_id = 1;
+}
+
+message Goods {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  string category = 4;
+  string description = 5;
+  bool available = 6;
+}
+
+message MerchantGoodsResponse {
+  repeated Goods goods = 1;
+}
