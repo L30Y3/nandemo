@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 
@@ -36,6 +37,7 @@ func (h *MerchantHandlerWithFirestoreClient) GetMerchantGoodsHandler(w http.Resp
 
 	goods, err := GetGoodsByMerchant(ctx, h.Firestore, merchantId)
 	if err != nil {
+		log.Printf("Failed to fetch goods for merchantId=%s: %v", merchantId, err)
 		http.Error(w, "Failed to fetch goods", http.StatusInternalServerError)
 	}
 
@@ -66,6 +68,7 @@ func (h *MerchantHandlerWithFirestoreClient) GetMerchantOrdersHandler(w http.Res
 	// Fetch from Firestore
 	orders, err := GetOrdersSince(ctx, merchantID, cutoff, h.Firestore)
 	if err != nil {
+		log.Printf("Failed to fetch orders for merchantId=%s: %v", merchantID, err)
 		http.Error(w, "Failed to fetch orders", http.StatusInternalServerError)
 		return
 	}
@@ -94,11 +97,20 @@ func GetGoodsByMerchant(ctx context.Context, fs *firestore.Client, merchantId st
 
 	for i, g := range goodsSlice {
 		gMap := g.(map[string]interface{})
+		var price float64
+		switch v := gMap["price"].(type) {
+		case int64:
+			price = float64(v)
+		case float64:
+			price = v
+		default:
+			return nil, fmt.Errorf("unexpected type for price: %T", v)
+		}
 
 		goodsList[i] = models.Goods{
 			SKU:         gMap["sku"].(string),
 			Name:        gMap["name"].(string),
-			Price:       gMap["price"].(float64),
+			Price:       price,
 			Category:    "", // optional if not stored
 			Description: "",
 			Available:   true, // assuming always available for now
