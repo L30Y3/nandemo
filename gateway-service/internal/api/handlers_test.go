@@ -65,6 +65,43 @@ func TestHandleGetMerchantGoods(t *testing.T) {
 	assert.Equal(t, "Test Goods", goods[0].Name, "Expected goods name to be 'Test Goods'")
 }
 
+func TestHandleGetMerchantOrders(t *testing.T) {
+	h := &Handler{
+		MerchantClient: &mockMerchantClient{},
+		OrderClient:    &mockOrderClient{},
+	}
+
+	// Create a mock HTTP request to get merchant orders of past 12 hours
+	req := httptest.NewRequest("GET", "/merchant/123/orders?window=12h", nil)
+	// Create a ResponseRecorder to record the response
+	rr := httptest.NewRecorder()
+
+	r := chi.NewRouter()
+	r.Get("/merchant/{merchantId}/orders", h.HandleGetMerchantOrders)
+
+	r.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200 OK")
+
+	var orders []models.Order
+	err := json.Unmarshal(rr.Body.Bytes(), &orders)
+	assert.NoError(t, err, "Expected no error while unmarshalling response")
+	assert.Len(t, orders, 1, "Expected one order in response")
+	assert.Equal(t, "user1", orders[0].UserID, "Expected order user ID to be 'user1'")
+
+	// Create a mock HTTP request to get merchant orders of past 1 hour
+	// This should return an empty list since no orders were to be returned in the last hour
+	req = httptest.NewRequest("GET", "/merchant/123/orders?window=1h", nil)
+	rr = httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+
+	assert.Equal(t, http.StatusOK, rr.Code, "Expected status code 200 OK")
+	var emptyOrders []models.Order
+	err = json.Unmarshal(rr.Body.Bytes(), &emptyOrders)
+	assert.NoError(t, err, "Expected no error while unmarshalling response")
+	assert.Len(t, emptyOrders, 0, "Expected no orders in response for 1h window")
+}
+
 func TestCreateOrder(t *testing.T) {
 	h := &Handler{
 		MerchantClient: &mockMerchantClient{},
