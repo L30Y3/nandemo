@@ -21,29 +21,31 @@ const (
 	getMerchantGoodsRoute  = "/merchant/{merchantId}/goods"
 )
 
+type Handler struct {
+	OrderClient    orderclient.OrderClientInterface
+	MerchantClient merchantclient.MerchantClientInterface
+}
+
 type HealthResponse struct {
 	Status string `json:"status"`
 }
 
-var orderSvc = orderclient.NewOrderServiceClient()
-var merchantSvc = merchantclient.NewMerchantServiceClient()
-
-func RegisterRoutes(r chi.Router) {
-	r.Get(healthRoute, HealthHandler)
+func (h *Handler) RegisterRoutes(r chi.Router) {
+	r.Get(healthRoute, h.HealthHandler)
 	r.Get(loginGoogleRoute, oauth.GoogleLoginHandler)
 	r.Get(loginMicrosoftRoute, oauth.MicrosoftLoginHandler)
-	r.Post(orderRoute, HandleCreateOrder)
-	r.Get(getMerchantGoodsRoute, HandleGetMerchantGoods)
-	r.Get(getMerchantOrdersRoute, HandleGetMerchantOrders)
+	r.Post(orderRoute, h.HandleCreateOrder)
+	r.Get(getMerchantGoodsRoute, h.HandleGetMerchantGoods)
+	r.Get(getMerchantOrdersRoute, h.HandleGetMerchantOrders)
 }
 
-func HealthHandler(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HealthHandler(w http.ResponseWriter, r *http.Request) {
 	resp := HealthResponse{Status: "Gateway Service OK"}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(resp)
 }
 
-func HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
 
 	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
@@ -51,7 +53,7 @@ func HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := orderSvc.CreateOrder(r.Context(), &order); err != nil {
+	if err := h.OrderClient.CreateOrder(r.Context(), &order); err != nil {
 		http.Error(w, "Failed to forward order", http.StatusBadGateway)
 		return
 	}
@@ -60,7 +62,7 @@ func HandleCreateOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
-func HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {
 	merchantId := chi.URLParam(r, "merchantId")
 	window := r.URL.Query().Get("window")
 
@@ -68,7 +70,7 @@ func HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {
 		window = "12h"
 	}
 
-	orders, err := merchantSvc.GetMerchantOrdersWithWindow(r.Context(), merchantId, window)
+	orders, err := h.MerchantClient.GetMerchantOrdersWithWindow(r.Context(), merchantId, window)
 	if err != nil {
 		http.Error(w, "Failed to fetch orders", http.StatusBadGateway)
 	}
@@ -77,10 +79,10 @@ func HandleGetMerchantOrders(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(orders)
 }
 
-func HandleGetMerchantGoods(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) HandleGetMerchantGoods(w http.ResponseWriter, r *http.Request) {
 	merchantId := chi.URLParam(r, "merchantId")
 
-	goods, err := merchantSvc.GetMerchantGoods(r.Context(), merchantId)
+	goods, err := h.MerchantClient.GetMerchantGoods(r.Context(), merchantId)
 	if err != nil {
 		http.Error(w, "Failed to fetch goods", http.StatusBadGateway)
 	}
