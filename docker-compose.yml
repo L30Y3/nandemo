@@ -28,7 +28,6 @@ services:
       - CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE=/dev/null
       - CLOUDSDK_CORE_PROJECT=nandemo-464411
       - CLOUDSDK_CORE_ACCOUNT=fake-user@example.com
-      - DISABLE_PUBSUB=false
 
   order-service:
     build:

@@ -29,18 +29,13 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	var bus *events.PubSubBus
-	var err error
 
-	if os.Getenv("DISABLE_PUBSUB") != "true" {
-		log.Println("Pub/Sub is enabled, using real bus")
-		bus, err = events.NewPubSubSubscriber(ctx, *projectID, *topicID, *subID)
-		if err != nil {
-			log.Fatalf("Failed to create PubSubBus: %v", err)
-		}
-
-		defer bus.Stop()
+	bus, err := events.NewPubSubSubscriber(ctx, *projectID, *topicID, *subID)
+	if err != nil {
+		log.Fatalf("Failed to create PubSubBus: %v", err)
 	}
+
+	defer bus.Stop()
 
 	client, err := firestore.NewClient(ctx, cfg.DefaultProjectID)
 	if err != nil {
