@@ -8,6 +8,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/L30Y3/nandemo/shared/config"
 	"github.com/L30Y3/nandemo/shared/models"
@@ -19,6 +20,9 @@ type MerchantServiceClient struct {
 }
 
 func getBaseURL() string {
+	if val := os.Getenv("MERCHANT_SERVICE_HOST"); val != "" {
+		return val
+	}
 	return fmt.Sprintf("http://localhost:%s", config.MerchantServicePort)
 }
 

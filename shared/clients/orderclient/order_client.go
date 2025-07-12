@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
+	"os"
 
 	"github.com/L30Y3/nandemo/shared/config"
 	"github.com/L30Y3/nandemo/shared/models"
@@ -27,6 +29,8 @@ func (c *OrderServiceClient) CreateOrder(ctx context.Context, order *models.Orde
 	prefix := "[order client]:"
 	url := fmt.Sprintf("%s/order", c.BaseURL)
 
+	log.Printf("%s posting to URL: %s", prefix, url)
+
 	body, err := json.Marshal(order)
 	if err != nil {
 		return fmt.Errorf("%s failed to marshal order: %w", prefix, err)
@@ -41,11 +45,13 @@ func (c *OrderServiceClient) CreateOrder(ctx context.Context, order *models.Orde
 
 	resp, err := c.HTTPClient.Do(req)
 	if err != nil {
+		log.Printf("%s request failed: %v", prefix, err)
 		return fmt.Errorf("%s request failed: %w", prefix, err)
 	}
 
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusCreated {
+		log.Printf("%s got HTTP %d from order-service", prefix, resp.StatusCode)
 		return fmt.Errorf("%s order service returned status: %s", prefix, resp.Status)
 	}
 
@@ -53,5 +59,8 @@ func (c *OrderServiceClient) CreateOrder(ctx context.Context, order *models.Orde
 }
 
 func getBaseURL() string {
+	if val := os.Getenv("ORDER_SERVICE_HOST"); val != "" {
+		return val
+	}
 	return fmt.Sprintf("http://localhost:%s", config.OrderServicePort)
 }

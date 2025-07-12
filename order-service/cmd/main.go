@@ -25,8 +25,12 @@ func main() {
 	defer bus.Stop()
 	api.RegisterRoutes(mux, bus)
 
-	port := os.Getenv("PORT")
-	if port == "" {
+	var port string
+	log.Printf("IN_CONTAINER raw env value: %q", os.Getenv("IN_CONTAINER"))
+
+	if os.Getenv("IN_CONTAINER") == "true" {
+		port = "80"
+	} else {
 		port = cfg.OrderServicePort
 	}
 

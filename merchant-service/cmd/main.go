@@ -29,12 +29,18 @@ func main() {
 	flag.Parse()
 
 	ctx := context.Background()
-	bus, err := events.NewPubSubSubscriber(ctx, *projectID, *topicID, *subID)
-	if err != nil {
-		log.Fatalf("Failed to create PubSubBus: %v", err)
-	}
+	var bus *events.PubSubBus
+	var err error
 
-	defer bus.Stop()
+	if os.Getenv("DISABLE_PUBSUB") != "true" {
+		log.Println("Pub/Sub is enabled, using real bus")
+		bus, err = events.NewPubSubSubscriber(ctx, *projectID, *topicID, *subID)
+		if err != nil {
+			log.Fatalf("Failed to create PubSubBus: %v", err)
+		}
+
+		defer bus.Stop()
+	}
 
 	client, err := firestore.NewClient(ctx, cfg.DefaultProjectID)
 	if err != nil {
@@ -43,16 +49,21 @@ func main() {
 
 	defer client.Close()
 
-	consumer.ListenForOrders(bus, client)
+	if bus != nil {
+		go consumer.ListenForOrders(bus, client)
+	}
 
 	r := chi.NewRouter()
 	api.RegisterRoutes(r, &api.MerchantHandlerWithFirestoreClient{
 		Firestore: client,
 	})
 
-	port := os.Getenv("PORT")
-	if port == "" {
+	var port string
+	if os.Getenv("IN_CONTAINER") == "true" {
+		port = "80"
+	} else {
 		port = cfg.MerchantServicePort
+		log.Printf("Using default port: %s", port)
 	}
 
 	log.Printf("Merchant Service running on port %s...", port)

@@ -19,9 +19,10 @@ func main() {
 		MerchantClient: merchantclient.NewMerchantServiceClient(),
 	}
 
-	// Register routes with the handler
+	log.Printf("ORDER_SERVICE_HOST = %s", os.Getenv("ORDER_SERVICE_HOST"))
+	log.Printf("MERCHANT_SERVICE_HOST = %s", os.Getenv("MERCHANT_SERVICE_HOST"))
+
 	r := chi.NewRouter()
-	handler.RegisterRoutes(r)
 
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"*"}, // change to specific frontend domain in prod
@@ -29,6 +30,8 @@ func main() {
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
 	}))
+	// Register routes with the handler
+	handler.RegisterRoutes(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {
